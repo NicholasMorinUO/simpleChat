@@ -3,6 +3,7 @@
 // license found at www.lloseng.com 
 
 import java.io.*;
+import javax.swing.JOptionPane;
 import java.util.Scanner;
 
 import client.*;
@@ -50,13 +51,13 @@ public class ClientConsole implements ChatIF
    * @param host The host to connect to.
    * @param port The port to connect on.
    */
-  public ClientConsole(String host, int port) 
+  public ClientConsole(String login_id, String host, int port) 
   {
     try 
     {
-      client= new ChatClient(host, port, this);
+      client= new ChatClient(login_id, host, port, this);
       
-      
+      //client.sendToServer("#login "+login_id);
     } 
     catch(IOException exception) 
     {
@@ -91,6 +92,8 @@ public class ClientConsole implements ChatIF
     } 
     catch (Exception ex) 
     {
+      System.out.println(ex);
+      ex.printStackTrace();
       System.out.println
         ("Unexpected error while reading from console!");
     }
@@ -104,7 +107,8 @@ public class ClientConsole implements ChatIF
    */
   public void display(String message) 
   {
-    System.out.println("> " + message);
+	String info= client.getInfo();
+    System.out.println(info+"> " + message);
   }
 
   
@@ -118,7 +122,7 @@ public class ClientConsole implements ChatIF
   public static void main(String[] args) 
   {
     String host = "";
-
+    int port=0;
 
     try
     {
@@ -128,7 +132,25 @@ public class ClientConsole implements ChatIF
     {
       host = "localhost";
     }
-    ClientConsole chat= new ClientConsole(host, DEFAULT_PORT);
+    
+    try
+    {
+      port = Integer.parseInt(args[1]);
+    }
+    catch(ArrayIndexOutOfBoundsException e)
+    {
+      port = 5555;
+    }
+    catch(NumberFormatException e) {
+      port = 5555;
+    }
+//    System.out.println("Please enter a login id: ");
+//    Scanner login = new Scanner(System.in);
+//    String log = login.nextLine();
+    String log = JOptionPane.showInputDialog("login info");
+    //login.close();
+    
+    ClientConsole chat= new ClientConsole(log, host, port);
     chat.accept();  //Wait for console data
   }
 }

@@ -27,7 +27,7 @@ public class ChatClient extends AbstractClient
    */
   ChatIF clientUI; 
 
-  
+  String login_identificator;
   //Constructors ****************************************************
   
   /**
@@ -38,17 +38,29 @@ public class ChatClient extends AbstractClient
    * @param clientUI The interface type variable.
    */
   
-  public ChatClient(String host, int port, ChatIF clientUI) 
+  public ChatClient(String login_id, String host, int port, ChatIF clientUI) 
     throws IOException 
   {
     super(host, port); //Call the superclass constructor
     this.clientUI = clientUI;
+    login_identificator=login_id;
     openConnection();
+    //System.out.println("Still working");
+    
+    
   }
 
   
   //Instance methods ************************************************
-    
+  
+//  public void setInfo(String entry) {
+//	  login_identificator=entry;
+//  }
+  
+  public String getInfo() {
+	  return login_identificator;
+  }
+   
   /**
    * This method handles all data that comes in from the server.
    *
@@ -68,6 +80,44 @@ public class ChatClient extends AbstractClient
   {
     try
     {
+      if(message.length()>0) {
+    	  if(message.substring(0,1).equals("#")) {
+        	  switch(message) {
+        	  	case "#quit":
+        	  		//System.out.println("#quit received");
+        	  		quit();
+        	  		break;
+        	  	case "#logoff":
+        	  		//System.out.println("#logoff received");
+        	  		closeConnection();
+        	  		break;
+        	  	case "#login":
+        	  		//System.out.println("#login received");
+        	  		openConnection();
+        	  		break;
+        	  	case "#gethost":
+        	  		//System.out.println("#gethost received");
+        	  		clientUI.display("host is: "+getHost());
+        	  		break;
+        	  	case "#getport":
+        	  		//System.out.println("#getport received");
+        	  		clientUI.display("port is: "+getPort());
+        	  		break;
+        	  }
+          }
+      }
+      
+      if(message.length()>7) {
+    	  if(message.substring(0,8).equals("#sethost")) {
+    		  String[] messy = message.split(" ",2);
+    		  setHost(messy[1]);
+    	  }
+    	  if(message.substring(0,8).equals("#setport")) {
+    		  String[] messy = message.split(" ",2);
+    		  setPort(Integer.parseInt(messy[1]));
+    	  }
+      }
+
       sendToServer(message);
     }
     catch(IOException e)
@@ -89,6 +139,14 @@ public class ChatClient extends AbstractClient
     }
     catch(IOException e) {}
     System.exit(0);
+  }
+  
+  public void connectionClosed() {
+	  System.out.println("le serveur s'est arrêté");
+  }
+  
+  public void connectionException(Exception e) {
+	  System.out.println("le serveur s'est arrêté");
   }
 }
 //End of ChatClient class

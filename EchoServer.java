@@ -48,8 +48,71 @@ public class EchoServer extends AbstractServer
   public void handleMessageFromClient
     (Object msg, ConnectionToClient client)
   {
+	  //System.out.println("Still working");
+//	  String login_info = (String) client.getInfo("String");
+//	  String message=(String) msg;
+//	  if(message.length()>5 && !login_info.isEmpty()) {
+//    	  if(message.substring(0,6).equals("#login")) {
+//    		  String[] messy = message.split(" ",2);
+//    		  client.setInfo("String", messy[1]);
+//    	  }
+//      }
+//	  if(login_info.isEmpty()) {
+//		System.out.println("#login was already received once");
+//		try {
+//			close();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	  }
+          
     System.out.println("Message received: " + msg + " from " + client);
     this.sendToAllClients(msg);
+  }
+  
+  public void handleMessageFromServer
+  (String msg)
+  {
+  System.out.println("Message received: " + msg );
+  try {
+	  if(msg.length()>0) {
+    	  if(msg.substring(0,1).equals("#")) {
+        	  switch(msg) {
+        	  	case "#quit":
+        	  		//System.out.println("#quit received");
+        	  		close();
+        	  		System.exit(0);
+        	  		break;
+        	  	case "#stop":
+        	  		//System.out.println("#logoff received");
+        	  		stopListening();
+        	  		break;
+        	  	case "#close":
+        	  		//System.out.println("#login received");
+        	  		close();
+        	  		break;
+        	  	case "#getport":
+        	  		//System.out.println("#getport received");
+        	  		System.out.println("port is: "+getPort());
+        	  		break;
+        	  	case "#start":
+        	  		//System.out.println("#getport received");
+        	  		listen();
+        	  		break;
+        	  }
+          }
+      }
+      
+      if(msg.length()>7) {
+    	  if(msg.substring(0,8).equals("#setport")) {
+    		  String[] messy = msg.split(" ",2);
+    		  setPort(Integer.parseInt(messy[1]));
+    	  }
+      }
+	  this.sendToAllClients("SERVER MSG>"+msg);
+  }catch(Exception e) {}
+  
   }
     
   /**
@@ -72,6 +135,14 @@ public class EchoServer extends AbstractServer
       ("Server has stopped listening for connections.");
   }
   
+  protected void clientConnected(ConnectionToClient client) {
+	  System.out.println("A client has connected");
+  }
+  
+  synchronized protected void clientDisconnected(
+		    ConnectionToClient client) {
+	  System.out.println("A client has disconnected");
+  }
   //Class methods ***************************************************
   
   /**
